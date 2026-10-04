@@ -9,9 +9,9 @@
   <meta name="robots" content="noindex, nofollow, noarchive">
   <title>Site stats – admin</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000'/%3E%3Ctext x='32' y='44' font-family='-apple-system,Helvetica,Arial' font-size='34' font-weight='700' fill='%23fff' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/prasidha_jagtap/style.css?v=28">
-  <link rel="stylesheet" href="admin.css?v=2">
-  <script src="/prasidha_jagtap/theme-init.js?v=28"></script>
+  <link rel="stylesheet" href="/prasidha_jagtap/style.css?v=29">
+  <link rel="stylesheet" href="admin.css?v=3">
+  <script src="/prasidha_jagtap/theme-init.js?v=29"></script>
 </head>
 <body class="admin">
   <header class="adm-top">
@@ -54,12 +54,12 @@
         <p class="adm-note" data-updated></p>
       </div>
       <div class="adm-tiles">
-        <div class="adm-tile"><span>Page views</span><strong data-k="views">–</strong><small>all time</small></div>
-        <div class="adm-tile"><span>Unique visitors</span><strong data-k="visitors">–</strong><small>counted once per device per day</small></div>
+        <div class="adm-tile"><span>Page views</span><strong data-k="views">–</strong><small>every page open</small></div>
+        <div class="adm-tile"><span>Visits</span><strong data-k="visits">–</strong><small>browser sessions</small></div>
+        <div class="adm-tile"><span>Unique visitors</span><strong data-k="unique">–</strong><small data-k="uniqueSub">different browsers, all time</small></div>
         <div class="adm-tile"><span>Liked 👍</span><strong data-k="likes">–</strong><small data-k="likeSub">all time</small></div>
         <div class="adm-tile"><span>Not liked 👎</span><strong data-k="dislikes">–</strong><small>all time</small></div>
         <div class="adm-tile"><span>Today</span><strong data-k="today">–</strong><small data-k="todaySub">views · visitors</small></div>
-        <div class="adm-tile"><span>Last 7 days</span><strong data-k="week">–</strong><small data-k="weekSub">views</small></div>
       </div>
 
       <figure class="adm-chart">
@@ -70,7 +70,7 @@
         <details class="adm-table">
           <summary>Show as a table</summary>
           <table>
-            <thead><tr><th scope="col">Day</th><th scope="col">Views</th><th scope="col">Visitors</th><th scope="col">👍</th><th scope="col">👎</th></tr></thead>
+            <thead><tr><th scope="col">Day</th><th scope="col">Views</th><th scope="col">Visits</th><th scope="col">Visitors</th><th scope="col">👍</th><th scope="col">👎</th><th scope="col">Yours</th></tr></thead>
             <tbody data-rows></tbody>
           </table>
         </details>
@@ -85,17 +85,17 @@
 
       <div class="adm-panel adm-device">
         <label class="adm-switch">
-          <input type="checkbox" data-nocount>
-          <span>Don't count my own visits on this device</span>
+          <input type="checkbox" data-include-own>
+          <span>Include my own visits</span>
         </label>
-        <p class="adm-note">Turn this on on each phone and laptop you use, so your own visits don't inflate the numbers.</p>
+        <p class="adm-note" data-own-note>Your own visits are recognised automatically on any browser where you have opened this panel, and kept out of the numbers above.</p>
       </div>
     </section>
 
     <p class="adm-error" data-error role="alert" hidden></p>
   </main>
 
-  <script src="/prasidha_jagtap/site-config.js?v=28" defer></script>
-  <script src="admin.js?v=2" defer></script>
+  <script src="/prasidha_jagtap/site-config.js?v=29" defer></script>
+  <script src="admin.js?v=3" defer></script>
 </body>
 </html>

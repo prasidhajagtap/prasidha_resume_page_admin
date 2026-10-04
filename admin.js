@@ -100,12 +100,14 @@
   });
   $('[data-refresh]').addEventListener('click', function () { load(); });
 
-  // ---------- "Don't count me" on this device ----------
-  var noCount = $('[data-nocount]');
-  try { noCount.checked = localStorage.getItem('pj_nocount') === '1'; } catch (e) {}
-  noCount.addEventListener('change', function () {
-    try { if (noCount.checked) localStorage.setItem('pj_nocount', '1'); else localStorage.removeItem('pj_nocount'); } catch (e) {}
+  // ---------- Own visits: recognised automatically on browsers that open this panel ----------
+  var incOwn = $('[data-include-own]'), last = null;
+  try { incOwn.checked = localStorage.getItem('pj_inc_own') === '1'; } catch (e) {}
+  incOwn.addEventListener('change', function () {
+    try { if (incOwn.checked) localStorage.setItem('pj_inc_own', '1'); else localStorage.removeItem('pj_inc_own'); } catch (e) {}
+    if (last) { render(last.rows, last.sum); }
   });
+  function markOwner() { try { localStorage.setItem('pj_owner', '1'); } catch (e) {} }
 
   // ---------- Data ----------
   var fmt = function (n) { return Number(n || 0).toLocaleString('en-IN'); };
@@ -120,54 +122,61 @@
     fail('');
     return token().then(function (at) {
       if (!at) { start(); return; }
-      var get = function (path) {
-        return fetch(API + '/rest/v1/' + path, { headers: { apikey: KEY, Authorization: 'Bearer ' + at } }).then(function (r) {
+      var get = function (path, post) {
+        return fetch(API + '/rest/v1/' + path, post ? { method: 'POST', headers: { apikey: KEY, Authorization: 'Bearer ' + at, 'Content-Type': 'application/json' }, body: '{}' }
+          : { headers: { apikey: KEY, Authorization: 'Bearer ' + at } }).then(function (r) {
           if (r.status === 401) { var e = new Error('auth'); e.auth = true; throw e; }
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.json();
         });
       };
       return Promise.all([
-        get('site_daily?select=day,views,visitors,likes,dislikes&order=day.desc&limit=1000'),
-        get('site_feedback?select=at,vote,answers,note&order=at.desc&limit=200')
-      ]).then(function (res) { render(res[0]); renderFeedback(res[1]); })
+        get('site_daily?select=day,views,visits,visitors,new_visitors,likes,dislikes,own_views&order=day.desc&limit=1000'),
+        get('site_feedback?select=at,vote,answers,note&order=at.desc&limit=200'),
+        get('rpc/site_summary', true).catch(function (e) { if (e.auth) throw e; return [{}]; })   // older database: no summary yet
+      ]).then(function (res) { markOwner(); last = { rows: res[0], sum: (res[2] && res[2][0]) || {} }; render(last.rows, last.sum); renderFeedback(res[1]); })
         .catch(function (e) { if (e.auth) { clearSession(); start(); } else throw e; });
     }).catch(function () { fail('Could not load the numbers. Please try Refresh.'); });
   }
 
-  function render(rows) {
+  function render(rows, sum) {
     show('stats');
     $('[data-refresh]').hidden = false; $('[data-signout]').hidden = false;
-    var byDay = {}, tot = { views: 0, visitors: 0, likes: 0, dislikes: 0 };
-    rows.forEach(function (r) { byDay[r.day] = r; tot.views += r.views; tot.visitors += r.visitors; tot.likes += r.likes; tot.dislikes += r.dislikes || 0; });
-    var today = istToday(), t = byDay[today] || { views: 0, visitors: 0 };
+    var inc = incOwn.checked;
+    var V = function (r) { return (r.views || 0) + (inc ? (r.own_views || 0) : 0); };
+    var byDay = {}, tot = { views: 0, visits: 0, likes: 0, dislikes: 0, own: 0 };
+    rows.forEach(function (r) { byDay[r.day] = r; tot.views += V(r); tot.visits += r.visits || 0; tot.likes += r.likes || 0; tot.dislikes += r.dislikes || 0; tot.own += r.own_views || 0; });
+    var today = istToday(), t = byDay[today] || {};
     var set = function (k, v) { var el = document.querySelector('[data-k="' + k + '"]'); if (el) el.textContent = v; };
-    set('views', fmt(tot.views)); set('visitors', fmt(tot.visitors)); set('likes', fmt(tot.likes)); set('dislikes', fmt(tot.dislikes));
+    var uniq = Number(sum.unique_visitors || 0) + (inc ? Number(sum.own_browsers || 0) : 0);
+    set('views', fmt(tot.views)); set('visits', fmt(tot.visits)); set('unique', fmt(uniq));
+    set('uniqueSub', fmt(sum.returning_visitors || 0) + ' came back more than once');
+    set('likes', fmt(tot.likes)); set('dislikes', fmt(tot.dislikes));
     var votes = tot.likes + tot.dislikes;
     set('likeSub', votes ? Math.round(tot.likes / votes * 100) + '% of ' + fmt(votes) + ' votes' : 'all time');
-    set('today', fmt(t.views)); set('todaySub', fmt(t.views) + ' views · ' + fmt(t.visitors) + ' visitors');
-    var week = 0, weekV = 0;
-    for (var i = 0; i < 7; i++) { var w = byDay[addDays(today, -i)]; if (w) { week += w.views; weekV += w.visitors; } }
-    set('week', fmt(week)); set('weekSub', 'views · ' + fmt(weekV) + ' visitors');
+    set('today', fmt(V(t))); set('todaySub', fmt(V(t)) + ' views · ' + fmt(t.visitors || 0) + ' visitors');
+    $('[data-own-note]').textContent = (inc ? 'Your own visits are included above. ' : 'Your own visits are recognised automatically on any browser where you have opened this panel, and kept out of the numbers above. ')
+      + 'Your page opens so far: ' + fmt(tot.own) + '.';
     if (!rows.length) $('[data-updated]').textContent = 'No visits recorded yet — numbers appear after the first visit.';
     else $('[data-updated]').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' · days in India time';
 
     // 30-day bar chart (single series: no legend; the title names it)
     var days = [];
-    for (var j = 29; j >= 0; j--) { var iso = addDays(today, -j); days.push({ day: iso, v: byDay[iso] || { views: 0, visitors: 0, likes: 0, dislikes: 0 } }); }
-    var max = Math.max.apply(null, days.map(function (d) { return d.v.views; }).concat([1]));
+    for (var j = 29; j >= 0; j--) { var iso = addDays(today, -j); days.push({ day: iso, v: byDay[iso] || {} }); }
+    days.forEach(function (d) { d.n = V(d.v); });
+    var max = Math.max.apply(null, days.map(function (d) { return d.n; }).concat([1]));
     var plot = $('[data-plot]'), axis = $('[data-axis]'), tip = $('[data-tip]');
     plot.textContent = ''; axis.textContent = '';
     days.forEach(function (d, k) {
       var col = document.createElement('div'); col.className = 'adm-col'; col.tabIndex = 0;
-      col.setAttribute('aria-label', nice(d.day) + ': ' + d.v.views + ' views, ' + d.v.visitors + ' visitors');
-      var bar = document.createElement('div'); bar.className = 'adm-bar' + (d.v.views ? '' : ' zero');
-      bar.style.height = (d.v.views ? Math.max(3, d.v.views / max * 100) : 0) + '%';
+      col.setAttribute('aria-label', nice(d.day) + ': ' + d.n + ' views, ' + (d.v.visitors || 0) + ' visitors');
+      var bar = document.createElement('div'); bar.className = 'adm-bar' + (d.n ? '' : ' zero');
+      bar.style.height = (d.n ? Math.max(3, d.n / max * 100) : 0) + '%';
       col.appendChild(bar); plot.appendChild(col);
       var showTip = function () {
         tip.textContent = '';
         var b = document.createElement('b'); b.textContent = nice(d.day); tip.appendChild(b);
-        tip.appendChild(document.createTextNode(fmt(d.v.views) + ' views · ' + fmt(d.v.visitors) + ' visitors'));
+        tip.appendChild(document.createTextNode(fmt(d.n) + ' views · ' + fmt(d.v.visits || 0) + ' visits · ' + fmt(d.v.visitors || 0) + ' visitors'));
         tip.hidden = false;
         var pr = plot.getBoundingClientRect(), cr = col.getBoundingClientRect(), fr = plot.parentNode.getBoundingClientRect();
         var x = cr.left + cr.width / 2 - fr.left;
@@ -183,7 +192,7 @@
     var tb = $('[data-rows]'); tb.textContent = '';
     days.slice().reverse().forEach(function (d) {
       var tr = document.createElement('tr');
-      [nice(d.day), fmt(d.v.views), fmt(d.v.visitors), fmt(d.v.likes), fmt(d.v.dislikes)].forEach(function (v, i) { var c = document.createElement(i ? 'td' : 'th'); if (!i) c.scope = 'row'; c.textContent = v; tr.appendChild(c); });
+      [nice(d.day), fmt(d.n), fmt(d.v.visits), fmt(d.v.visitors), fmt(d.v.likes), fmt(d.v.dislikes), fmt(d.v.own_views)].forEach(function (v, i) { var c = document.createElement(i ? 'td' : 'th'); if (!i) c.scope = 'row'; c.textContent = v; tr.appendChild(c); });
       tb.appendChild(tr);
     });
   }
