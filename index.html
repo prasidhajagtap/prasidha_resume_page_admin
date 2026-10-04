@@ -12,9 +12,9 @@
   <meta name="designer" content="Prasidha Jagtap">
   <title>Site stats – admin</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000'/%3E%3Ctext x='32' y='44' font-family='-apple-system,Helvetica,Arial' font-size='34' font-weight='700' fill='%23fff' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/prasidha_jagtap/style.css?v=37">
+  <link rel="stylesheet" href="/prasidha_jagtap/style.css?v=38">
   <link rel="stylesheet" href="admin.css?v=4">
-  <script src="/prasidha_jagtap/theme-init.js?v=37"></script>
+  <script src="/prasidha_jagtap/theme-init.js?v=38"></script>
 </head>
 <body class="admin">
   <header class="adm-top">
@@ -81,11 +81,23 @@
         </details>
       </figure>
 
+      <section class="adm-panel adm-fb" aria-labelledby="cm-h">
+        <h2 id="cm-h">Comments</h2>
+        <p class="adm-note" data-cm-note>No comments yet.</p>
+        <div class="adm-fb-list" data-cm-list></div>
+      </section>
       <section class="adm-panel adm-fb" aria-labelledby="fb-h">
         <h2 id="fb-h">Feedback</h2>
         <p class="adm-note" data-fb-empty>No feedback yet.</p>
         <div class="adm-sum" data-fb-sum></div>
         <div class="adm-fb-list" data-fb-list></div>
+      </section>
+
+      <section class="adm-panel adm-fb" aria-labelledby="rv-h">
+        <h2 id="rv-h">Needs review</h2>
+        <p class="adm-note">Sent from one network after its normal daily limit (3 votes, 3 feedback, 5 enquiry clicks), up to 30 a day. Kept out of the numbers above: it may be real people on a shared Wi-Fi or mobile network, or spam.</p>
+        <p class="adm-note" data-rv-counts>Nothing to review.</p>
+        <div class="adm-fb-list" data-rv-list></div>
       </section>
 
       <div class="adm-panel adm-device">
@@ -100,7 +112,7 @@
     <p class="adm-error" data-error role="alert" hidden></p>
   </main>
 
-  <script src="/prasidha_jagtap/site-config.js?v=37" defer></script>
-  <script src="admin.js?v=5" defer></script>
+  <script src="/prasidha_jagtap/site-config.js?v=38" defer></script>
+  <script src="admin.js?v=7" defer></script>
 </body>
 </html>

@@ -49,6 +49,8 @@ On **Site stats**:
   - **Website interest ✨**: *Want a website?* page opened
   - **Enquiries sent ✉️**: *Send enquiry / Gmail / Outlook* tapped, with *% of those who opened it*
 - **Page views per day, last 30 days:** a bar chart. Hover or focus a bar for views, visits and visitors. **Show as a table** gives the day-by-day numbers: Views, Visits, Visitors, 👍, 👎, ✨ Opened, ✉️ Sent, Yours.
+- **Comments:** every optional comment visitors wrote, newest first, with its 👍/👎 and date.
+- **Needs review:** votes, enquiry clicks and feedback that one network sent after its normal daily limit (3 votes, 3 feedback, 5 enquiry clicks), up to 30 a day. They are kept out of all the numbers above, because they may be real people on a shared office or mobile network, or spam. Above 30 a day the website asks that visitor to stop.
 - **Feedback:**
   - A summary card per question with counts: *Who visits*, *What stood out (👍)*, *Want to connect (👍)*, *What would make it better (👎)*, *Where to start (👎)*
   - The latest 50 answers, each with its vote, time, answers and optional note
@@ -102,7 +104,7 @@ To keep one look and one set of settings, `index.html` loads these from the main
 | `/prasidha_jagtap/site-config.js` | Public Supabase URL and anon key |
 
 If the main site's repository or folder name ever changes, update these three paths in `index.html`.
-They carry the same `?v=` number as the main site (currently `v=37`). Whenever the main site raises its number, raise it here too, so this page never shows an old copy of the shared look.
+They carry the same `?v=` number as the main site (currently `v=38`). Whenever the main site raises its number, raise it here too, so this page never shows an old copy of the shared look.
 
 ---
 
@@ -116,7 +118,7 @@ They carry the same `?v=` number as the main site (currently `v=37`). Whenever t
 | `.nojekyll` | Tells GitHub Pages to serve files as they are. |
 | `LICENSE` | All rights reserved. |
 
-**Cache version:** `admin.css?v=4` and `admin.js?v=5`. Raise the number whenever those files change.
+**Cache version:** `admin.css?v=4` and `admin.js?v=7`. Raise the number whenever those files change.
 
 ---
 
@@ -137,7 +139,7 @@ They carry the same `?v=` number as the main site (currently `v=37`). Whenever t
 - **Days** are counted in India time (Asia/Kolkata).
 - **Never counted:** your own browsers (except in *Yours*) and automated browsers.
 
-**Spam limits** (per network, enforced in the database; over a limit, the call quietly does nothing). The network is taken from `cf-connecting-ip`, set by Supabase's Cloudflare edge, which a visitor cannot fake:
+**Spam limits** (per network, enforced in the database; above a limit, up to 30 a day, items go to *Needs review*; above 30 the site asks the visitor to stop). The network is taken from `cf-connecting-ip`, set by Supabase's Cloudflare edge, which a visitor cannot fake:
 
 | Action | Limit |
 |---|---|
@@ -158,7 +160,7 @@ They carry the same `?v=` number as the main site (currently `v=37`). Whenever t
 | Table | Holds | This page reads it? |
 |---|---|---|
 | `site_daily` | One row per day: `views`, `visits`, `visitors`, `new_visitors`, `likes`, `dislikes`, `own_views`, `build_opens`, `build_sends` | Yes (`select=*`, so an older database without newer columns still loads) |
-| `site_feedback` | Vote, answer codes (JSON), note, time | Yes (latest 200) |
+| `site_feedback` | Vote, answer codes (JSON), note, time | Yes (all rows, loaded 1000 at a time) |
 | `site_visitors` | One row per hashed browser ID (first/last seen, views, visits, own) | Only through `site_summary()` |
 | `site_visitor_days` | Which browsers came on which day | No |
 | `site_hits` | Short-lived anti-spam log (hashed network), deleted after 2 days | No |
@@ -170,8 +172,8 @@ They carry the same `?v=` number as the main site (currently `v=37`). Whenever t
 | `site_summary()` | admin only | All-time unique, returning and own browsers (used by this page) |
 | `is_site_admin()` | signed-in users | Checks the signed-in email against `site_admins` |
 | `record_visit(vid, new_visit, own)` | visitors (main site) | Counts a page open / visit / unique browser |
-| `record_vote(vote)` | visitors | Adds 👍 or 👎 |
-| `submit_feedback(vote, answers, note)` | visitors | Saves cleaned feedback (unknown answers dropped) |
+| `record_vote(vote)` | visitors | Adds 👍 or 👎 (review above the normal limit) |
+| `submit_feedback(vote, answers, note)` | visitors | Saves cleaned feedback (unknown answers dropped; marked review above the normal limit) |
 | `record_build(step)` | visitors | Counts enquiry `open` / `send` |
 | `ping()` | visitors | Returns 1, used by the keep-awake job |
 | `ip_key_check()` | visitors | Harmless self-test: shows the caller fingerprints of their own address headers only |

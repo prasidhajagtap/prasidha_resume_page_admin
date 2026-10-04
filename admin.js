@@ -130,11 +130,21 @@
           return r.json();
         });
       };
+      // Every row, 1000 at a time (the most the database returns in one go)
+      var getAll = function (path, from, acc) {
+        from = from || 0; acc = acc || [];
+        return get(path + '&limit=1000&offset=' + from).then(function (rows) {
+          acc = acc.concat(rows);
+          return rows.length === 1000 ? getAll(path, from + 1000, acc) : acc;
+        });
+      };
       return Promise.all([
-        get('site_daily?select=*&order=day.desc&limit=1000'),   // * so an older database without newer columns still loads,
-        get('site_feedback?select=at,vote,answers,note&order=at.desc&limit=200'),
+        getAll('site_daily?select=*&order=day.desc'),   // * so an older database without newer columns still loads
+        getAll('site_feedback?select=*&order=at.desc'),   // * so an older database without the review column still loads
         get('rpc/site_summary', true).catch(function (e) { if (e.auth) throw e; return [{}]; })   // older database: no summary yet
-      ]).then(function (res) { markOwner(); last = { rows: res[0], sum: (res[2] && res[2][0]) || {} }; render(last.rows, last.sum); renderFeedback(res[1]); })
+      ]).then(function (res) { markOwner(); last = { rows: res[0], sum: (res[2] && res[2][0]) || {} }; render(last.rows, last.sum);
+        var fb = res[1].filter(function (f) { return !f.review; }), held = res[1].filter(function (f) { return f.review; });
+        renderComments(fb); renderFeedback(fb); renderReview(last.rows, held); })
         .catch(function (e) { if (e.auth) { clearSession(); start(); } else throw e; });
     }).catch(function () { fail('Could not load the numbers. Please try Refresh.'); });
   }
@@ -238,6 +248,46 @@
       Object.keys(LABELS).forEach(function (k) { var v = f.answers && f.answers[k]; if (v && LABELS[k][1][v]) tags.appendChild(el('span', null, LABELS[k][1][v])); });
       item.appendChild(tags);
       if (f.note) item.appendChild(el('p', 'adm-fb-note', '“' + f.note + '”'));
+      box.appendChild(item);
+    });
+  }
+
+  // ---------- Comments: every optional note, newest first ----------
+  function renderComments(list) {
+    var box = $('[data-cm-list]'), notes = list.filter(function (f) { return f.note; });
+    box.textContent = '';
+    $('[data-cm-note]').textContent = notes.length ? notes.length + (notes.length === 1 ? ' comment' : ' comments') + ', newest first.' : 'No comments yet.';
+    notes.forEach(function (f) {
+      var item = el('article', 'adm-fb-item ' + (f.vote === 'up' ? 'up' : 'down'));
+      var head = el('div', 'adm-fb-head');
+      head.appendChild(el('span', 'adm-fb-vote', f.vote === 'up' ? '👍' : '👎'));
+      head.appendChild(el('time', null, new Date(f.at).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })));
+      item.appendChild(head);
+      item.appendChild(el('p', 'adm-fb-note', f.note));
+      box.appendChild(item);
+    });
+  }
+
+  // ---------- Needs review: what one network sent above its normal daily limit ----------
+  function renderReview(rows, held) {
+    var t = { lk: 0, dl: 0, op: 0, se: 0 };
+    rows.forEach(function (r) { t.lk += r.review_likes || 0; t.dl += r.review_dislikes || 0; t.op += r.review_opens || 0; t.se += r.review_sends || 0; });
+    var parts = [];
+    if (t.lk || t.dl) parts.push('Votes: 👍 ' + fmt(t.lk) + ' · 👎 ' + fmt(t.dl));
+    if (t.op || t.se) parts.push('“Want a website?”: opened ' + fmt(t.op) + ' · sent ' + fmt(t.se));
+    if (held.length) parts.push('Feedback: ' + fmt(held.length));
+    $('[data-rv-counts]').textContent = parts.length ? parts.join('   |   ') : 'Nothing to review.';
+    var box = $('[data-rv-list]'); box.textContent = '';
+    held.forEach(function (f) {
+      var item = el('article', 'adm-fb-item ' + (f.vote === 'up' ? 'up' : 'down'));
+      var head = el('div', 'adm-fb-head');
+      head.appendChild(el('span', 'adm-fb-vote', f.vote === 'up' ? '👍' : '👎'));
+      head.appendChild(el('time', null, new Date(f.at).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })));
+      item.appendChild(head);
+      var tags = el('div', 'adm-fb-tags');
+      Object.keys(LABELS).forEach(function (k) { var v = f.answers && f.answers[k]; if (v && LABELS[k][1][v]) tags.appendChild(el('span', null, LABELS[k][1][v])); });
+      item.appendChild(tags);
+      if (f.note) item.appendChild(el('p', 'adm-fb-note', f.note));
       box.appendChild(item);
     });
   }
