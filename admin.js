@@ -200,12 +200,13 @@
   }
 
   // ---------- Feedback ----------
+  // Same wording as the questions on the main site (main.js FLOWS); codes are what the database stores
   var LABELS = {
     who: ['Who visits', { recruiter: 'Recruiter / HR', manager: 'Hiring manager', peer: 'Colleague / peer', friend: 'Friend or family', exploring: 'Just exploring' }],
     stood_out: ['What stood out (👍)', { experience: 'Experience & impact', problems: 'Problems solved', ai: 'AI & things built', design: 'Design & feel', skills: 'Skills' }],
     intent: ['Want to connect (👍)', { yes: 'Yes, let’s talk', later: 'Maybe later', browsing: 'Just browsing' }],
-    reason: ['What didn’t work (👎)', { long: 'Too long to read', hard_to_find: 'Hard to find information', design: 'Design or look', not_relevant: 'Not relevant to my role', broken: 'Something didn’t work', other: 'Something else' }],
-    improve: ['Improve first (👎)', { content: 'Content', design: 'Design', speed: 'Speed', phone: 'Phone view', clarity: 'Clarity' }]
+    reason: ['What would make it better (👎)', { long: 'Shorter and quicker to read', hard_to_find: 'Easier to find things', design: 'A fresher look', not_relevant: 'More about my field', broken: 'A fix — something didn’t work', other: 'Something else' }],
+    improve: ['Where to start (👎)', { content: 'The content', design: 'The design', speed: 'Loading speed', phone: 'The phone view', clarity: 'Clearer wording' }]
   };
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   function renderFeedback(list) {

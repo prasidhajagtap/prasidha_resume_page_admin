@@ -50,7 +50,7 @@ On **Site stats**:
   - **Enquiries sent ✉️**: *Send enquiry / Gmail / Outlook* tapped, with *% of those who opened it*
 - **Page views per day, last 30 days:** a bar chart. Hover or focus a bar for views, visits and visitors. **Show as a table** gives the day-by-day numbers: Views, Visits, Visitors, 👍, 👎, ✨ Opened, ✉️ Sent, Yours.
 - **Feedback:**
-  - A summary card per question with counts: *Who visits*, *What stood out (👍)*, *Want to connect (👍)*, *What didn’t work (👎)*, *Improve first (👎)*
+  - A summary card per question with counts: *Who visits*, *What stood out (👍)*, *Want to connect (👍)*, *What would make it better (👎)*, *Where to start (👎)*
   - The latest 50 answers, each with its vote, time, answers and optional note
 - **Include my own visits:** a switch, remembered on this browser.
 - **Buttons:** **Refresh**, **Sign out**, and the light/dark switch.
@@ -102,7 +102,7 @@ To keep one look and one set of settings, `index.html` loads these from the main
 | `/prasidha_jagtap/site-config.js` | Public Supabase URL and anon key |
 
 If the main site's repository or folder name ever changes, update these three paths in `index.html`.
-They carry the same `?v=` number as the main site (currently `v=36`). Whenever the main site raises its number, raise it here too, so this page never shows an old copy of the shared look.
+They carry the same `?v=` number as the main site (currently `v=37`). Whenever the main site raises its number, raise it here too, so this page never shows an old copy of the shared look.
 
 ---
 
@@ -116,7 +116,7 @@ They carry the same `?v=` number as the main site (currently `v=36`). Whenever t
 | `.nojekyll` | Tells GitHub Pages to serve files as they are. |
 | `LICENSE` | All rights reserved. |
 
-**Cache version:** `admin.css?v=4` and `admin.js?v=4`. Raise the number whenever those files change.
+**Cache version:** `admin.css?v=4` and `admin.js?v=5`. Raise the number whenever those files change.
 
 ---
 
