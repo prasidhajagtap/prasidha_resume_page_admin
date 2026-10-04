@@ -24,7 +24,7 @@ body.admin { background: var(--bg-alt); min-height: 100vh; }
 .adm-login label { font-size: 14px; font-weight: 600; }
 .adm-login input { padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--field, var(--bg)); color: var(--text); font: inherit; }
 .adm-login .btn { justify-self: start; margin-top: 6px; }
-.adm-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.adm-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
 .adm-tile { padding: 18px 18px 16px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line-soft); box-shadow: var(--edge), var(--sh-1); }
 .adm-tile span { display: block; font-size: 13px; font-weight: 600; color: var(--muted); }
 .adm-tile strong { display: block; margin-top: 6px; font-size: clamp(26px, 3.4vw, 34px); font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--text); }
@@ -47,7 +47,8 @@ body.admin { background: var(--bg-alt); min-height: 100vh; }
 .adm-table { margin-top: 10px; }
 .adm-table summary { font-size: 14px; color: var(--muted); }
 .adm-table table { width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
-.adm-table th, .adm-table td { padding: 7px 8px; text-align: right; border-bottom: 1px solid var(--line); }
+.adm-table { overflow-x: auto; }
+.adm-table th, .adm-table td { padding: 7px 8px; white-space: nowrap; text-align: right; border-bottom: 1px solid var(--line); }
 .adm-table th:first-child, .adm-table tbody th { text-align: left; font-weight: 500; }
 .adm-device { margin-top: 18px; padding: 20px 22px; }
 .adm-switch { display: flex; align-items: center; gap: 12px; font-weight: 600; color: var(--text); cursor: var(--cursor-like, pointer); }

@@ -131,7 +131,7 @@
         });
       };
       return Promise.all([
-        get('site_daily?select=day,views,visits,visitors,new_visitors,likes,dislikes,own_views&order=day.desc&limit=1000'),
+        get('site_daily?select=*&order=day.desc&limit=1000'),   // * so an older database without newer columns still loads,
         get('site_feedback?select=at,vote,answers,note&order=at.desc&limit=200'),
         get('rpc/site_summary', true).catch(function (e) { if (e.auth) throw e; return [{}]; })   // older database: no summary yet
       ]).then(function (res) { markOwner(); last = { rows: res[0], sum: (res[2] && res[2][0]) || {} }; render(last.rows, last.sum); renderFeedback(res[1]); })
@@ -144,8 +144,8 @@
     $('[data-refresh]').hidden = false; $('[data-signout]').hidden = false;
     var inc = incOwn.checked;
     var V = function (r) { return (r.views || 0) + (inc ? (r.own_views || 0) : 0); };
-    var byDay = {}, tot = { views: 0, visits: 0, likes: 0, dislikes: 0, own: 0 };
-    rows.forEach(function (r) { byDay[r.day] = r; tot.views += V(r); tot.visits += r.visits || 0; tot.likes += r.likes || 0; tot.dislikes += r.dislikes || 0; tot.own += r.own_views || 0; });
+    var byDay = {}, tot = { views: 0, visits: 0, likes: 0, dislikes: 0, own: 0, bo: 0, bs: 0 };
+    rows.forEach(function (r) { byDay[r.day] = r; tot.views += V(r); tot.visits += r.visits || 0; tot.likes += r.likes || 0; tot.dislikes += r.dislikes || 0; tot.own += r.own_views || 0; tot.bo += r.build_opens || 0; tot.bs += r.build_sends || 0; });
     var today = istToday(), t = byDay[today] || {};
     var set = function (k, v) { var el = document.querySelector('[data-k="' + k + '"]'); if (el) el.textContent = v; };
     var uniq = Number(sum.unique_visitors || 0) + (inc ? Number(sum.own_browsers || 0) : 0);
@@ -154,6 +154,8 @@
     set('likes', fmt(tot.likes)); set('dislikes', fmt(tot.dislikes));
     var votes = tot.likes + tot.dislikes;
     set('likeSub', votes ? Math.round(tot.likes / votes * 100) + '% of ' + fmt(votes) + ' votes' : 'all time');
+    set('buildOpens', fmt(tot.bo)); set('buildSends', fmt(tot.bs));
+    set('buildSub', tot.bo ? Math.round(tot.bs / tot.bo * 100) + '% of those who opened it' : 'tapped Send enquiry');
     set('today', fmt(V(t))); set('todaySub', fmt(V(t)) + ' views · ' + fmt(t.visitors || 0) + ' visitors');
     $('[data-own-note]').textContent = (inc ? 'Your own visits are included above. ' : 'Your own visits are recognised automatically on any browser where you have opened this panel, and kept out of the numbers above. ')
       + 'Your page opens so far: ' + fmt(tot.own) + '.';
@@ -192,7 +194,7 @@
     var tb = $('[data-rows]'); tb.textContent = '';
     days.slice().reverse().forEach(function (d) {
       var tr = document.createElement('tr');
-      [nice(d.day), fmt(d.n), fmt(d.v.visits), fmt(d.v.visitors), fmt(d.v.likes), fmt(d.v.dislikes), fmt(d.v.own_views)].forEach(function (v, i) { var c = document.createElement(i ? 'td' : 'th'); if (!i) c.scope = 'row'; c.textContent = v; tr.appendChild(c); });
+      [nice(d.day), fmt(d.n), fmt(d.v.visits), fmt(d.v.visitors), fmt(d.v.likes), fmt(d.v.dislikes), fmt(d.v.build_opens), fmt(d.v.build_sends), fmt(d.v.own_views)].forEach(function (v, i) { var c = document.createElement(i ? 'td' : 'th'); if (!i) c.scope = 'row'; c.textContent = v; tr.appendChild(c); });
       tb.appendChild(tr);
     });
   }
