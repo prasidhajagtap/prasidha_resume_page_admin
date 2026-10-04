@@ -1,19 +1,19 @@
 Copyright (c) 2026 Prasidha Jagtap. All rights reserved.
 
-This repository and the website it produces
-(https://prasidhajagtap.github.io/prasidha_jagtap/) — including its design,
-layout, text, photographs, images, résumé and source code — were designed and
-developed by Prasidha Jagtap and are the personal intellectual property
+This repository and the admin page it produces
+(https://prasidhajagtap.github.io/prasidha_resume_page_admin/), together with
+the website it reports on (https://prasidhajagtap.github.io/prasidha_jagtap/) —
+including their design, layout, text, images and source code — were designed
+and developed by Prasidha Jagtap and are the personal intellectual property
 of Prasidha Jagtap.
 
-No licence is granted. You may view the website and its source in your browser,
+No licence is granted. You may view this page and its source in your browser,
 but you may not copy, modify, reuse, redistribute, sell or create derivative
 works from any part of it, in whole or in part, without prior written
 permission from Prasidha Jagtap.
 
 Third-party components keep their own licences:
-- Inter typeface (assets/fonts/inter-latin.woff2) — SIL Open Font License 1.1,
+- Inter typeface (loaded from the main website) — SIL Open Font License 1.1,
   © The Inter Project Authors (https://github.com/rsms/inter).
-- Click-pointer and bookmark icon shapes are adapted from Lucide (ISC License).
 
-Contact for permissions: via the contact form on the website.
+Contact for permissions: via the contact form on the main website.

@@ -136,7 +136,7 @@ If the main site's repository or folder name ever changes, update these three pa
 - **Days** are counted in India time (Asia/Kolkata).
 - **Never counted:** your own browsers (except in *Yours*) and automated browsers.
 
-**Spam limits** (per network, enforced in the database; over a limit, the call quietly does nothing):
+**Spam limits** (per network, enforced in the database; over a limit, the call quietly does nothing). The network is taken from `cf-connecting-ip`, set by Supabase's Cloudflare edge, which a visitor cannot fake:
 
 | Action | Limit |
 |---|---|
@@ -173,6 +173,7 @@ If the main site's repository or folder name ever changes, update these three pa
 | `submit_feedback(vote, answers, note)` | visitors | Saves cleaned feedback (unknown answers dropped) |
 | `record_build(step)` | visitors | Counts enquiry `open` / `send` |
 | `ping()` | visitors | Returns 1, used by the keep-awake job |
+| `ip_key_check()` | visitors | Harmless self-test: shows the caller fingerprints of their own address headers only |
 
 ### Supabase settings that must stay this way
 - **Authentication → Sign In / Providers:** “Allow new users to sign up” is **off**.
