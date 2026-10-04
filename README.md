@@ -102,6 +102,7 @@ To keep one look and one set of settings, `index.html` loads these from the main
 | `/prasidha_jagtap/site-config.js` | Public Supabase URL and anon key |
 
 If the main site's repository or folder name ever changes, update these three paths in `index.html`.
+They carry the same `?v=` number as the main site (currently `v=36`). Whenever the main site raises its number, raise it here too, so this page never shows an old copy of the shared look.
 
 ---
 
